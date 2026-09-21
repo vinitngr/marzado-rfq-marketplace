@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import * as React from "react";
-import { Check, LocateFixed, MapPin, Search, Star } from "lucide-react";
+import { Check, LocateFixed, MapPin, Search, Star, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -131,6 +131,27 @@ export function LocationPicker() {
     setSaved(true);
   }
 
+  function deleteSavedLocation(location: SavedLocation) {
+    const nextSavedLocations = savedLocations.filter(
+      (savedLocation) =>
+        savedLocation.label !== location.label ||
+        savedLocation.lat !== location.lat ||
+        savedLocation.lng !== location.lng,
+    );
+    window.localStorage.setItem(
+      SAVED_LOCATIONS_KEY,
+      JSON.stringify(nextSavedLocations),
+    );
+    setSavedLocations(nextSavedLocations);
+    if (
+      address === location.label &&
+      position.lat === location.lat &&
+      position.lng === location.lng
+    ) {
+      setSaved(false);
+    }
+  }
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-4">
@@ -142,7 +163,7 @@ export function LocationPicker() {
       <div className="relative flex gap-2">
         <div className="relative min-w-0 flex-1">
           <MapPin className="pointer-events-none absolute left-3 top-3 size-4 text-slate-400" />
-          <Input className="pl-9" id="delivery-location" name="deliveryLocation" value={address} onFocus={() => setSuggestionsOpen(true)} onChange={(event) => { setAddress(event.target.value); setSaved(false); setSuggestions([]); setSuggestionsOpen(true); }} placeholder="Search for a building, street, or area" required autoComplete="off" />
+          <Input className="border-slate-300 bg-white pl-9 focus-visible:border-slate-400 focus-visible:ring-0" id="delivery-location" name="deliveryLocation" value={address} onFocus={() => setSuggestionsOpen(true)} onChange={(event) => { setAddress(event.target.value); setSaved(false); setSuggestions([]); setSuggestionsOpen(true); }} placeholder="Search for a building, street, or area" required autoComplete="off" />
           {suggestionsOpen && suggestions.length > 0 && <div className="absolute inset-x-0 top-full z-[1001] mt-2 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">{suggestions.map((suggestion) => <button className="flex w-full items-start gap-2 border-b border-slate-100 px-3 py-3 text-left text-xs text-slate-700 last:border-0 hover:bg-emerald-50" key={`${suggestion.label}-${suggestion.lat}`} type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => selectAddress(suggestion)}><MapPin className="mt-0.5 size-3.5 shrink-0 text-emerald-600" /><span>{suggestion.label}</span></button>)}</div>}
         </div>
         <Button className="shrink-0" type="button" variant="outline" disabled={busy === "search"} onClick={() => void searchAddress()} aria-label="Search address"><Search className="size-4" /></Button>
@@ -154,7 +175,7 @@ export function LocationPicker() {
           {saved ? <Check className="size-4 text-emerald-600" /> : <Star className="size-4" />}{saved ? "Saved" : "Save location"}
         </Button>
       </div>
-      {savedLocations.length > 0 && <div className="rounded-xl border border-slate-200 bg-slate-50 p-3"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Saved locations</p><div className="mt-2 grid gap-2">{savedLocations.map((location) => <button className="flex items-start gap-2 rounded-lg bg-white p-2 text-left text-xs text-slate-700 shadow-sm transition hover:bg-emerald-50" key={`${location.label}-${location.lat}`} type="button" onClick={() => selectSavedLocation(location)}><Star className="mt-0.5 size-3.5 shrink-0 text-amber-500" /><span className="line-clamp-2">{location.label}</span></button>)}</div></div>}
+      {savedLocations.length > 0 && <div className="rounded-none border border-slate-300 bg-slate-50 p-3"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Saved locations</p><div className="mt-2 grid gap-2">{savedLocations.map((location) => <div className="flex items-stretch border border-slate-200 bg-white" key={`${location.label}-${location.lat}`}><button className="flex min-w-0 flex-1 items-start gap-2 p-2 text-left text-xs text-slate-700 transition hover:bg-emerald-50" type="button" onClick={() => selectSavedLocation(location)}><Star className="mt-0.5 size-3.5 shrink-0 text-amber-500" /><span className="line-clamp-2">{location.label}</span></button><button className="flex w-9 shrink-0 items-center justify-center border-l border-slate-200 text-slate-400 transition hover:bg-red-50 hover:text-red-600" type="button" onClick={() => deleteSavedLocation(location)} aria-label={`Delete saved location ${location.label}`}><Trash2 className="size-3.5" /></button></div>)}</div></div>}
       {locationError && <p className="text-xs text-red-600" role="alert">{locationError}</p>}
       <p className="text-xs text-slate-500">Your saved locations stay in this browser and are only used to speed up your next RFQ.</p>
     </div>
