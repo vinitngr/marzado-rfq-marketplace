@@ -3,6 +3,9 @@ import {
   SiteHeader,
   SiteHeaderFallback,
 } from "@/components/shared/site-header";
+import { asc } from "drizzle-orm";
+import { db } from "@/db";
+import { categories } from "@/db/schema";
 import { NewRfqForm } from "./rfq-form";
 
 export default function NewRfqPage({
@@ -34,5 +37,9 @@ async function NewRfqContent({
   searchParams: Promise<{ error?: string }>;
 }) {
   const { error } = await searchParams;
-  return <NewRfqForm error={error} />;
+  const availableCategories = await db
+    .select({ id: categories.id, name: categories.name })
+    .from(categories)
+    .orderBy(asc(categories.name));
+  return <NewRfqForm error={error} categories={availableCategories} />;
 }

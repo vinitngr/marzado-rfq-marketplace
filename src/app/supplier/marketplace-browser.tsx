@@ -16,6 +16,7 @@ export type MarketplaceItem = {
   id: string;
   title: string;
   description: string;
+  categoryName: string | null;
   quantity: number;
   unit: string;
   deliveryLocation: string;
@@ -29,6 +30,7 @@ type Filters = {
   minQty: string;
   maxQty: string;
   window: string;
+  category: string;
 };
 const initialFilters: Filters = {
   q: "",
@@ -36,6 +38,7 @@ const initialFilters: Filters = {
   minQty: "",
   maxQty: "",
   window: "",
+  category: "",
 };
 
 export function MarketplaceBrowser({
@@ -56,6 +59,7 @@ export function MarketplaceBrowser({
   const minQty = Number(filters.minQty);
   const maxQty = Number(filters.maxQty);
   const windowDays = Number(filters.window);
+  const category = filters.category;
   const cutoff = windowDays ? openedAt + windowDays * 24 * 60 * 60 * 1000 : 0;
   const filteredItems = items.filter((item) => {
     const matchesQuery =
@@ -68,8 +72,14 @@ export function MarketplaceBrowser({
     const matchesMax =
       !Number.isFinite(maxQty) || maxQty <= 0 || item.quantity <= maxQty;
     const matchesWindow = !cutoff || item.deadline.getTime() <= cutoff;
+    const matchesCategory = !category || item.categoryName === category;
     return (
-      matchesQuery && matchesArea && matchesMin && matchesMax && matchesWindow
+      matchesQuery &&
+      matchesArea &&
+      matchesMin &&
+      matchesMax &&
+      matchesWindow &&
+      matchesCategory
     );
   });
   const hasFilters = Object.values(filters).some(Boolean);
@@ -142,7 +152,7 @@ export function MarketplaceBrowser({
             {isFiltering ? "Filtering..." : "Apply filters"}
           </button>
         </div>
-        <div className="mt-3 grid gap-3 border-t border-slate-100 pt-3 sm:grid-cols-3">
+        <div className="mt-3 grid gap-3 border-t border-slate-100 pt-3 sm:grid-cols-4">
           <FilterInput
             label="Minimum quantity"
             value={draftFilters.minQty}
@@ -151,6 +161,31 @@ export function MarketplaceBrowser({
             }
             placeholder="Any"
           />
+          <label className="text-xs font-medium text-slate-600">
+            Category
+            <select
+              className="mt-1.5 h-9 w-full rounded-none border border-slate-300 bg-white px-3 text-sm outline-none focus:border-slate-500"
+              value={draftFilters.category}
+              onChange={(event) =>
+                setDraftFilters({ ...draftFilters, category: event.target.value })
+              }
+            >
+              <option value="">All categories</option>
+              {[
+                ...new Set(
+                  items
+                    .map((item) => item.categoryName)
+                    .filter((name): name is string => Boolean(name)),
+                ),
+              ]
+                .sort()
+                .map((categoryName) => (
+                  <option key={categoryName} value={categoryName}>
+                    {categoryName}
+                  </option>
+                ))}
+            </select>
+          </label>
           <FilterInput
             label="Maximum quantity"
             value={draftFilters.maxQty}
@@ -260,6 +295,11 @@ function MarketplaceRow({ rfq }: { rfq: MarketplaceItem }) {
           )}
         </div>
         <div className="min-w-0">
+          {rfq.categoryName && (
+            <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.12em] text-indigo-600">
+              {rfq.categoryName}
+            </p>
+          )}
           <h3 className="font-semibold tracking-[-0.01em] text-slate-950">{rfq.title}</h3>
           <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">
             {rfq.description}

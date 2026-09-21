@@ -1,7 +1,20 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { LoginMethods } from "@/components/auth/login-methods";
 
-export default async function LoginPage({
+export default function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ role?: string }>;
+}) {
+  return (
+    <Suspense fallback={<LoginFallback />}>
+      <LoginContent searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+async function LoginContent({
   searchParams,
 }: {
   searchParams: Promise<{ role?: string }>;
@@ -42,6 +55,17 @@ export default async function LoginPage({
             />
           </div>
         </section>
+      </div>
+    </main>
+  );
+}
+
+function LoginFallback() {
+  return (
+    <main className="min-h-screen bg-[#f5f6f8] px-5 py-8 text-[#17202b] sm:px-8 sm:py-10">
+      <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-3xl flex-col justify-center">
+        <div className="mx-auto h-5 w-24 animate-pulse bg-[#dfe3e8]" />
+        <div className="mx-auto mt-8 h-64 w-full max-w-2xl animate-pulse border-t border-[#dfe3e8]" />
       </div>
     </main>
   );

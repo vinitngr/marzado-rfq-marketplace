@@ -107,6 +107,7 @@ export const rfqs = pgTable(
     buyerIdx: index("buyer_idx").on(table.buyerId),
     statusIdx: index("status_idx").on(table.status),
     deadlineIdx: index("deadline_idx").on(table.deadline),
+    categoryIdx: index("category_idx").on(table.categoryId),
   })
 );
 

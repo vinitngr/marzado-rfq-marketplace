@@ -12,6 +12,7 @@ import { createClient } from "@supabase/supabase-js";
 
 const rfqSchema = z.object({
   title: z.string().trim().min(3).max(120),
+  categoryId: z.string().uuid(),
   description: z.string().trim().min(10).max(5000),
   quantity: z.coerce.number().int().positive(),
   unit: z.string().trim().min(1).max(30),

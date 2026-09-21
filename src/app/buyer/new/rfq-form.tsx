@@ -18,9 +18,10 @@ import { RfqImageUploader } from "./rfq-image-uploader";
 
 type NewRfqFormProps = {
   error?: string;
+  categories: { id: string; name: string }[];
 };
 
-export function NewRfqForm({ error }: NewRfqFormProps) {
+export function NewRfqForm({ error, categories }: NewRfqFormProps) {
   const [state, formAction, pending] = React.useActionState<
     CreateRfqState,
     FormData
@@ -99,6 +100,25 @@ export function NewRfqForm({ error }: NewRfqFormProps) {
               name="title"
               placeholder="e.g. Custom corrugated boxes"
             />
+
+            <label className="block text-sm font-medium text-slate-800">
+              Category
+              <select
+                className="mt-2 h-10 w-full rounded-none border border-slate-300 bg-white px-3 text-sm outline-none focus:border-slate-400"
+                name="categoryId"
+                required
+                defaultValue=""
+              >
+                <option value="" disabled>
+                  Select a category
+                </option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </label>
 
             <label className="block text-sm font-medium text-slate-800">
               Requirement description

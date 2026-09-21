@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { asc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { rfqs } from "@/db/schema";
+import { categories, rfqs } from "@/db/schema";
 import { requireUser } from "@/lib/guards";
 import {
   SiteHeader,
@@ -36,8 +36,19 @@ async function Marketplace({
   await requireUser("SUPPLIER");
   const params = await searchParams;
   const items = await db
-    .select()
+    .select({
+      id: rfqs.id,
+      title: rfqs.title,
+      description: rfqs.description,
+      quantity: rfqs.quantity,
+      unit: rfqs.unit,
+      deliveryLocation: rfqs.deliveryLocation,
+      deadline: rfqs.deadline,
+      imageUrl: rfqs.imageUrl,
+      categoryName: categories.name,
+    })
     .from(rfqs)
+    .leftJoin(categories, eq(rfqs.categoryId, categories.id))
     .where(eq(rfqs.status, "OPEN"))
     .orderBy(asc(rfqs.deadline));
   return (
