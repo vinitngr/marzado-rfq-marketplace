@@ -5,8 +5,8 @@ export function SiteHeaderFallback() {
   return (
     <header className="border-b border-slate-200 bg-white">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <span className="text-xl font-bold tracking-tight text-slate-950">
-          merzado-rfq-marketplace
+        <span className="text-xl font-bold tracking-[-0.04em] text-slate-950">
+          merzado
         </span>
         <span className="h-8 w-24 animate-pulse rounded-md bg-slate-100" />
       </div>
@@ -23,7 +23,7 @@ export async function SiteHeader() {
     <header className="border-b border-slate-200 bg-white">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         <Link
-          className="text-xl font-bold tracking-tight text-slate-950"
+          className="text-xl font-bold tracking-[-0.04em] text-slate-950"
           href={home}
         >
           merzado-rfq-marketplace
@@ -35,12 +35,20 @@ export async function SiteHeader() {
             </Link>
           )}
           {role === "SUPPLIER" && (
-            <Link
-              className="text-slate-600 hover:text-slate-950"
-              href="/supplier"
-            >
-              Marketplace
-            </Link>
+            <>
+              <Link
+                className="text-slate-600 hover:text-slate-950"
+                href="/supplier"
+              >
+                Marketplace
+              </Link>
+              <Link
+                className="text-slate-600 hover:text-slate-950"
+                href="/supplier/quotes"
+              >
+                My quotes
+              </Link>
+            </>
           )}
           {session?.user ? (
             <form

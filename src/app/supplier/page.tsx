@@ -19,7 +19,7 @@ export default function SupplierPage({
       <Suspense fallback={<SiteHeaderFallback />}>
         <SiteHeader />
       </Suspense>
-      <main className="mx-auto max-w-6xl px-4 py-9 sm:px-6">
+      <main className="mx-auto max-w-6xl px-4 py-7 sm:px-6 sm:py-8">
         <Suspense fallback={<MarketplaceFallback />}>
           <Marketplace searchParams={searchParams} />
         </Suspense>

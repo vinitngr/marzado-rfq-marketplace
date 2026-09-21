@@ -7,8 +7,8 @@ import { db } from "@/db";
 import { rfqs } from "@/db/schema";
 import { quotations } from "@/db/schema";
 import { requireUser } from "@/lib/guards";
-import { and, eq } from "drizzle-orm";
-import { v2 as cloudinary } from "cloudinary";
+import { and, count, eq, sql } from "drizzle-orm";
+import { createClient } from "@supabase/supabase-js";
 
 const rfqSchema = z.object({
   title: z.string().trim().min(3).max(120),
@@ -41,6 +41,10 @@ const rfqSchema = z.object({
     .refine((date) => date > new Date(), "Choose a future deadline"),
 });
 
+const MAX_RFQS_PER_BUYER = 10;
+
+class RfqLimitError extends Error {}
+
 export type CreateRfqState = {
   error?: string;
   success?: boolean;
@@ -57,48 +61,88 @@ export async function createRfq(
     const issue = input.error.issues[0];
     return { error: `${String(issue.path[0] ?? "field")}: ${issue.message}` };
   }
+  const [{ total }] = await db
+    .select({ total: count() })
+    .from(rfqs)
+    .where(eq(rfqs.buyerId, buyer.id));
+  if (total >= MAX_RFQS_PER_BUYER) {
+    return {
+      error: `You have reached the limit of ${MAX_RFQS_PER_BUYER} RFQs per account.`,
+    };
+  }
   let imageUrl = input.data.imageUrl || null;
   let imageWarning: string | undefined;
   if (imageUrl) {
     if (
-      !process.env.CLOUDINARY_CLOUD_NAME ||
-      !process.env.CLOUDINARY_API_KEY ||
-      !process.env.CLOUDINARY_API_SECRET
+      !(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL) ||
+      !process.env.SUPABASE_SERVICE_ROLE_KEY
     ) {
       imageUrl = null;
       imageWarning = "Image storage is not configured.";
     }
   }
   if (imageUrl) {
-    cloudinary.config({
-      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-      api_key: process.env.CLOUDINARY_API_KEY,
-      api_secret: process.env.CLOUDINARY_API_SECRET,
-    });
     try {
-      const uploaded = await cloudinary.uploader.upload(imageUrl, {
-        folder: "merzado/rfqs",
-        resource_type: "image",
-      });
-      imageUrl = uploaded.secure_url;
+      const [header, encodedImage] = imageUrl.split(",");
+      const mimeType = header.match(/^data:(image\/(?:jpeg|png|webp));base64$/)?.[1];
+      const extension = mimeType === "image/jpeg" ? "jpg" : mimeType?.split("/")[1];
+      if (!mimeType || !extension || !encodedImage) {
+        throw new Error("Invalid image data");
+      }
+
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        { auth: { persistSession: false, autoRefreshToken: false } },
+      );
+      const path = `${buyer.id}/${crypto.randomUUID()}.${extension}`;
+      const { error: uploadError } = await supabase.storage
+        .from("rfq-images")
+        .upload(path, Buffer.from(encodedImage, "base64"), {
+          contentType: mimeType,
+          upsert: false,
+        });
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage.from("rfq-images").getPublicUrl(path);
+      imageUrl = data.publicUrl;
     } catch (error) {
       console.error("RFQ image upload failed:", error);
       imageUrl = null;
-      imageWarning = "Cloudinary rejected the image upload.";
+      imageWarning = "Supabase rejected the image upload.";
     }
   }
   const { deliveryLatitude, deliveryLongitude, ...rfqData } = input.data;
-  await db
-    .insert(rfqs)
-    .values({
-      ...rfqData,
-      deliveryLatitude:
-        deliveryLatitude === "" ? null : String(deliveryLatitude),
-      deliveryLongitude:
-        deliveryLongitude === "" ? null : String(deliveryLongitude),
-      imageUrl,
-      buyerId: buyer.id,
+  try {
+    await db.transaction(async (tx) => {
+      await tx.execute(
+        sql`select id from users where id = ${buyer.id} for update`,
+      );
+      const [{ total }] = await tx
+        .select({ total: count() })
+        .from(rfqs)
+        .where(eq(rfqs.buyerId, buyer.id));
+      if (total >= MAX_RFQS_PER_BUYER) {
+        throw new RfqLimitError();
+      }
+      await tx.insert(rfqs).values({
+        ...rfqData,
+        deliveryLatitude:
+          deliveryLatitude === "" ? null : String(deliveryLatitude),
+        deliveryLongitude:
+          deliveryLongitude === "" ? null : String(deliveryLongitude),
+        imageUrl,
+        buyerId: buyer.id,
+      });
     });
+  } catch (error) {
+    if (error instanceof RfqLimitError) {
+      return {
+        error: `You have reached the limit of ${MAX_RFQS_PER_BUYER} RFQs per account.`,
+      };
+    }
+    throw error;
+  }
   revalidatePath("/buyer");
   revalidatePath("/supplier");
   return { success: true, imageWarning };

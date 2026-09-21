@@ -88,12 +88,12 @@ export function MarketplaceBrowser({
 
   return (
     <>
-      <header className="flex flex-wrap items-end justify-between gap-5 border-b border-slate-200 pb-7">
+      <header className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-200 pb-6">
         <div>
           <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-indigo-600">
             Supplier marketplace
           </p>
-          <h1 className="mt-2 text-4xl font-semibold tracking-[-0.06em] text-slate-950">
+          <h1 className="mt-2 text-3xl font-semibold tracking-[-0.05em] text-slate-950 sm:text-4xl">
             Find your next order
           </h1>
           <p className="mt-2 text-sm text-slate-500">
@@ -106,7 +106,7 @@ export function MarketplaceBrowser({
         </div>
       </header>
       <form
-        className="mt-6 border border-slate-200 bg-white p-4"
+        className="mt-5 border border-slate-200 bg-white p-3 sm:p-4"
         onSubmit={applyFilters}
         role="search"
       >
@@ -195,7 +195,7 @@ export function MarketplaceBrowser({
           This RFQ is no longer available.
         </p>
       )}
-      <section className="mt-10">
+      <section className="mt-8">
         <div className="flex items-end justify-between border-b border-slate-200 pb-3">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">
@@ -212,7 +212,7 @@ export function MarketplaceBrowser({
         {filteredItems.length === 0 ? (
           <EmptyMarketplace filtered={hasFilters} />
         ) : (
-          <div className="divide-y divide-slate-200 border-b border-slate-200">
+          <div className="space-y-2 pt-3">
             {filteredItems.map((item) => (
               <MarketplaceRow key={item.id} rfq={item} />
             ))}
@@ -250,9 +250,9 @@ function FilterInput({
 }
 function MarketplaceRow({ rfq }: { rfq: MarketplaceItem }) {
   return (
-    <article className="group grid gap-5 bg-white px-1 py-5 transition hover:bg-[#eef3ff] sm:grid-cols-[minmax(0,1fr)_minmax(16rem,1.4fr)_7rem] sm:items-center sm:px-3">
+    <article className="group grid gap-4 border border-slate-200 border-l-4 border-l-indigo-500 bg-white px-4 py-4 transition hover:border-slate-300 hover:shadow-sm sm:grid-cols-[minmax(0,1.2fr)_minmax(16rem,1.4fr)_7rem] sm:items-center sm:px-5">
       <div className="flex min-w-0 gap-4">
-        <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden border border-slate-200 bg-slate-50">
+        <div className="flex size-14 shrink-0 items-center justify-center overflow-hidden border border-slate-200 bg-slate-50">
           {rfq.imageUrl ? (
             <img className="size-full object-cover" src={rfq.imageUrl} alt="" />
           ) : (
@@ -260,7 +260,7 @@ function MarketplaceRow({ rfq }: { rfq: MarketplaceItem }) {
           )}
         </div>
         <div className="min-w-0">
-          <h3 className="font-semibold text-slate-950">{rfq.title}</h3>
+          <h3 className="font-semibold tracking-[-0.01em] text-slate-950">{rfq.title}</h3>
           <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">
             {rfq.description}
           </p>
@@ -272,7 +272,7 @@ function MarketplaceRow({ rfq }: { rfq: MarketplaceItem }) {
             <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">
               Requested
             </p>
-            <p className="mt-1 text-sm font-medium text-slate-700">
+            <p className="mt-1 text-sm font-semibold text-slate-800">
               {rfq.quantity.toLocaleString()}{" "}
               <span className="font-normal text-slate-500">{rfq.unit}</span>
             </p>
@@ -282,7 +282,7 @@ function MarketplaceRow({ rfq }: { rfq: MarketplaceItem }) {
               <Clock3 className="size-3 text-indigo-600" />
               Closes
             </p>
-            <p className="mt-1 text-sm text-slate-700">
+            <p className="mt-1 text-sm font-medium text-slate-800">
               {rfq.deadline.toLocaleDateString()}
             </p>
           </div>
