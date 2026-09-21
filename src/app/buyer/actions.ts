@@ -12,7 +12,8 @@ import { and, eq } from "drizzle-orm";
 const rfqSchema = z.object({
   title: z.string().trim().min(3).max(120), description: z.string().trim().min(10).max(5000),
   quantity: z.coerce.number().int().positive(), unit: z.string().trim().min(1).max(30),
-  deliveryLocation: z.string().trim().min(3).max(120), deadline: z.coerce.date().refine((date) => date > new Date(), "Choose a future deadline"),
+  deliveryLocation: z.string().trim().min(3).max(120),
+  deadline: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Choose a deadline").transform((value) => new Date(`${value}T23:59:59`)).refine((date) => date > new Date(), "Choose a future deadline"),
 });
 
 export async function createRfq(formData: FormData) {
