@@ -38,7 +38,7 @@ export function LocationMap({ position, onPositionChange }: LocationMapProps) {
   const center: LatLngExpression = [position.lat, position.lng];
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm">
+    <div className="relative overflow-hidden rounded-none border border-slate-200 bg-slate-100 shadow-sm">
       <MapContainer center={center} zoom={15} scrollWheelZoom className="h-72 w-full sm:h-80">
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'

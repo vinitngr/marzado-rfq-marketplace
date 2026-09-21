@@ -8,6 +8,7 @@ import { rfqs } from "@/db/schema";
 import { quotations } from "@/db/schema";
 import { requireUser } from "@/lib/guards";
 import { and, eq } from "drizzle-orm";
+import { v2 as cloudinary } from "cloudinary";
 
 const rfqSchema = z.object({
   title: z.string().trim().min(3).max(120), description: z.string().trim().min(10).max(5000),
@@ -20,7 +21,18 @@ export async function createRfq(formData: FormData) {
   const buyer = await requireUser("BUYER");
   const input = rfqSchema.safeParse(Object.fromEntries(formData));
   if (!input.success) redirect("/buyer/new?error=invalid");
-  await db.insert(rfqs).values({ ...input.data, buyerId: buyer.id });
+  let imageUrl = input.data.imageUrl || null;
+  if (imageUrl) {
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) redirect("/buyer/new?error=image-config");
+    cloudinary.config({ cloud_name: process.env.CLOUDINARY_CLOUD_NAME, api_key: process.env.CLOUDINARY_API_KEY, api_secret: process.env.CLOUDINARY_API_SECRET });
+    try {
+      const uploaded = await cloudinary.uploader.upload(imageUrl, { folder: "merzado/rfqs", resource_type: "image" });
+      imageUrl = uploaded.secure_url;
+    } catch {
+      redirect("/buyer/new?error=image-upload");
+    }
+  }
+  await db.insert(rfqs).values({ ...input.data, imageUrl, buyerId: buyer.id });
   revalidatePath("/buyer");
   revalidatePath("/supplier");
   redirect("/buyer");
