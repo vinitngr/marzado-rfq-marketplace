@@ -90,6 +90,7 @@ export const rfqs = pgTable(
     quantity: integer("quantity").notNull(),
     unit: text("unit").default("units").notNull(),
     deliveryLocation: text("delivery_location").notNull(),
+    imageUrl: text("image_url"),
     budgetMin: numeric("budget_min", { precision: 12, scale: 2 }),
     budgetMax: numeric("budget_max", { precision: 12, scale: 2 }),
     deadline: timestamp("deadline", { mode: "date" }).notNull(),

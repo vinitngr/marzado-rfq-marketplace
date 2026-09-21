@@ -8,6 +8,13 @@
       "when": 1789999617319,
       "tag": "0000_neat_ben_urich",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790003616040,
+      "tag": "0001_faulty_scalphunter",
+      "breakpoints": true
     }
   ]
 }

@@ -1,8 +1,13 @@
+import { Suspense } from "react";
 import { chooseRole } from "./actions";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
-export default async function OnboardingPage() {
+export default function OnboardingPage() {
+  return <Suspense fallback={<main className="grid min-h-screen place-items-center bg-slate-50 p-4" />}><OnboardingGate /></Suspense>;
+}
+
+async function OnboardingGate() {
   const session = await auth();
   if (!session?.user) redirect("/login");
   if (session.user.role === "BUYER") redirect("/buyer");

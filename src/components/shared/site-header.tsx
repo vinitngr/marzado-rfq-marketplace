@@ -1,6 +1,17 @@
 import Link from "next/link";
 import { auth, signOut } from "@/lib/auth";
 
+export function SiteHeaderFallback() {
+  return (
+    <header className="border-b border-slate-200 bg-white">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+        <span className="text-xl font-bold tracking-tight text-slate-950">merzado</span>
+        <span className="h-8 w-24 animate-pulse rounded-md bg-slate-100" />
+      </div>
+    </header>
+  );
+}
+
 export async function SiteHeader() {
   const session = await auth();
   const role = session?.user?.role;

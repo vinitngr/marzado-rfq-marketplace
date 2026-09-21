@@ -1,0 +1,1 @@
+ALTER TABLE "rfqs" ADD COLUMN "image_url" text;
