@@ -41,7 +41,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               id: existingUser.id,
               name: existingUser.name,
               email: existingUser.email,
-              role: existingUser.role || role,
+              role,
               image: existingUser.image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
             };
           }

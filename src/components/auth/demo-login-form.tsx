@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
 import { BriefcaseBusiness, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,10 @@ export function DemoLoginForm({
   const [email, setEmail] = useState("buyer@merzado.demo");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+
+  useEffect(() => {
+    setEmail(role === "BUYER" ? "buyer@merzado.demo" : "supplier@merzado.demo");
+  }, [role]);
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

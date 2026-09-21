@@ -34,7 +34,7 @@ async function OnboardingGate({
       <div className="mx-auto max-w-5xl border border-slate-200 bg-white">
         <header className="flex items-center justify-between border-b border-slate-200 px-6 py-5 sm:px-10">
           <span className="text-xl font-bold tracking-tight text-slate-950">
-            merzado
+            merzado-rfq-marketplace
           </span>
           <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">
             Set up your workspace

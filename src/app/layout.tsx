@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Merzado | B2B RFQ Marketplace",
+  title: "merzado-rfq-marketplace",
   description:
     "A focused marketplace for business requests and supplier quotations.",
 };
