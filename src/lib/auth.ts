@@ -1,5 +1,5 @@
 import NextAuth from "next-auth";
-import Google from "next-auth/providers/google";
+import GitHub from "next-auth/providers/github";
 import Credentials from "next-auth/providers/credentials";
 import { db } from "@/db";
 import { users } from "@/db/schema";
@@ -9,9 +9,9 @@ type AppRole = "BUYER" | "SUPPLIER" | "ADMIN";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
-    Google({
-      clientId: process.env.AUTH_GOOGLE_ID || "",
-      clientSecret: process.env.AUTH_GOOGLE_SECRET || "",
+    GitHub({
+      clientId: process.env.AUTH_GITHUB_ID || "",
+      clientSecret: process.env.AUTH_GITHUB_SECRET || "",
     }),
     // Demo Credentials Provider for testing & rubric grading
     Credentials({
@@ -83,7 +83,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   callbacks: {
     async signIn({ user, account }) {
-      if (account?.provider === "google" && user.email) {
+      if (account?.provider === "github" && user.email) {
         try {
           const existingUser = await db.query.users.findFirst({
             where: eq(users.email, user.email),
@@ -92,12 +92,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           if (!existingUser) {
             await db.insert(users).values({
               email: user.email,
-              name: user.name || "Google User",
+              name: user.name || "GitHub User",
               image: user.image,
             });
           }
         } catch (err) {
-          console.error("Error creating user on Google sign-in:", err);
+          console.error("Error creating user on GitHub sign-in:", err);
         }
       }
       return true;

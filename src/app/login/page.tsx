@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { DemoLoginForm } from "@/components/auth/demo-login-form";
+import { GitHubLoginButton } from "@/components/auth/github-login-button";
 
 export default function LoginPage() {
   return (
@@ -10,9 +11,7 @@ export default function LoginPage() {
         <p className="mt-2 text-sm leading-6 text-slate-600">Use a demo account to explore both sides of the RFQ workflow.</p>
         <div className="mt-6"><DemoLoginForm /></div>
         <div className="my-6 flex items-center gap-3 text-xs text-slate-400"><span className="h-px flex-1 bg-slate-200" />or<span className="h-px flex-1 bg-slate-200" /></div>
-        <form action="/api/auth/signin/google" method="post">
-          <button className="w-full rounded-md border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" type="submit">Continue with Google</button>
-        </form>
+        {process.env.AUTH_GITHUB_ID && process.env.AUTH_GITHUB_SECRET ? <GitHubLoginButton /> : <p className="text-center text-xs text-slate-500">GitHub sign-in can be enabled with deployment credentials.</p>}
       </section>
     </main>
   );
