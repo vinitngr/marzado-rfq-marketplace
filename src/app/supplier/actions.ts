@@ -18,12 +18,16 @@ const quoteSchema = z.object({
 export async function submitQuote(formData: FormData) {
   const supplier = await requireUser("SUPPLIER");
   const input = quoteSchema.safeParse(Object.fromEntries(formData));
-  if (!input.success)
+  if (!input.success) {
     redirect(`/supplier/rfqs/${formData.get("rfqId")}?error=invalid`);
+  }
+
   const rfq = await db.query.rfqs.findFirst({
     where: and(eq(rfqs.id, input.data.rfqId), eq(rfqs.status, "OPEN")),
   });
+
   if (!rfq) redirect("/supplier?error=unavailable");
+
   await db
     .insert(quotations)
     .values({

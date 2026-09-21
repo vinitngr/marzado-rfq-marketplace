@@ -28,9 +28,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const role = credentials.role as "BUYER" | "SUPPLIER";
         const email = credentials.email as string;
-        const name = role === "BUYER" ? "Demo Buyer Company" : "Demo Supplier Corp";
+        const name =
+          role === "BUYER" ? "Demo Buyer Company" : "Demo Supplier Corp";
 
-        // Check if user exists in DB or create demo user
         try {
           const existingUser = await db.query.users.findFirst({
             where: eq(users.email, email),
@@ -42,11 +42,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               name: existingUser.name,
               email: existingUser.email,
               role,
-              image: existingUser.image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
+              image:
+                existingUser.image ||
+                `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
             };
           }
 
-          // Create new user in Neon Postgres
           const [newUser] = await db
             .insert(users)
             .values({
@@ -66,13 +67,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             image: newUser.image,
           };
         } catch (error) {
-          console.error("Demo auth DB error, using fallback mock user:", error);
+          console.error("Demo auth database error:", error);
           return {
             id: role === "BUYER" ? "demo-buyer-id" : "demo-supplier-id",
             name,
             email,
             role,
-            image: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
+            image:
+              `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
           };
         }
       },
@@ -110,13 +112,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.role = user.role || null;
       }
 
-      // Handle session updates (e.g., when selecting a role during onboarding)
       const updatedRole = (session as { role?: AppRole } | undefined)?.role;
       if (trigger === "update" && updatedRole) {
         token.role = updatedRole;
       }
 
-      // Sync role from DB if token role is missing
       if (token.email && !token.role) {
         try {
           const dbUser = await db.query.users.findFirst({
@@ -127,7 +127,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token.role = dbUser.role;
           }
         } catch {
-          // DB sync error catch
         }
       }
 

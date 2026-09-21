@@ -3,13 +3,15 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import * as schema from "./schema";
 
 const databaseUrl = process.env.DATABASE_URL;
+const fallbackDatabaseUrl =
+  "postgresql://placeholder:placeholder@localhost:5432/placeholder";
 
 if (!databaseUrl && process.env.NODE_ENV === "production") {
   console.warn("DATABASE_URL is not set in environment variables.");
 }
 
 const sql = postgres(
-  databaseUrl || "postgresql://placeholder:placeholder@localhost:5432/placeholder",
+  databaseUrl || fallbackDatabaseUrl,
   {
     // Supabase's transaction pooler does not support prepared statements.
     prepare: false,

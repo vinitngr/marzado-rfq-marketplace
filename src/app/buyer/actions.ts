@@ -4,15 +4,17 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { rfqs } from "@/db/schema";
-import { quotations } from "@/db/schema";
 import { requireUser } from "@/lib/guards";
-import { and, count, eq, sql } from "drizzle-orm";
-import { createClient } from "@supabase/supabase-js";
+import { and, eq } from "drizzle-orm";
+import {
+  MAX_RFQS_PER_BUYER,
+  awardRfqQuote,
+  countBuyerRfqs,
+  insertRfqWithLimit,
+  RfqLimitError,
+} from "@/db/queries/rfqs";
+import { uploadRfqImage } from "@/lib/storage";
 import { rfqSchema } from "./rfq-validation";
-
-const MAX_RFQS_PER_BUYER = 10;
-
-class RfqLimitError extends Error {}
 
 export type CreateRfqState = {
   error?: string;
@@ -30,85 +32,40 @@ export async function createRfq(
     const issue = input.error.issues[0];
     return { error: `${String(issue.path[0] ?? "field")}: ${issue.message}` };
   }
-  const [{ total }] = await db
-    .select({ total: count() })
-    .from(rfqs)
-    .where(eq(rfqs.buyerId, buyer.id));
-  if (total >= MAX_RFQS_PER_BUYER) {
-    return {
-      error: `You have reached the limit of ${MAX_RFQS_PER_BUYER} RFQs per account.`,
-    };
+  if ((await countBuyerRfqs(buyer.id)) >= MAX_RFQS_PER_BUYER) {
+    return { error: new RfqLimitError().message };
   }
+
   let imageUrl = input.data.imageUrl || null;
   let imageWarning: string | undefined;
-  if (imageUrl) {
-    if (
-      !(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL) ||
-      !process.env.SUPABASE_SERVICE_ROLE_KEY
-    ) {
-      imageUrl = null;
-      imageWarning = "Image storage is not configured.";
-    }
-  }
+
   if (imageUrl) {
     try {
-      const [header, encodedImage] = imageUrl.split(",");
-      const mimeType = header.match(/^data:(image\/(?:jpeg|png|webp));base64$/)?.[1];
-      const extension = mimeType === "image/jpeg" ? "jpg" : mimeType?.split("/")[1];
-      if (!mimeType || !extension || !encodedImage) {
-        throw new Error("Invalid image data");
-      }
-
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
-        { auth: { persistSession: false, autoRefreshToken: false } },
-      );
-      const path = `${buyer.id}/${crypto.randomUUID()}.${extension}`;
-      const { error: uploadError } = await supabase.storage
-        .from("rfq-images")
-        .upload(path, Buffer.from(encodedImage, "base64"), {
-          contentType: mimeType,
-          upsert: false,
-        });
-      if (uploadError) throw uploadError;
-
-      const { data } = supabase.storage.from("rfq-images").getPublicUrl(path);
-      imageUrl = data.publicUrl;
+      imageUrl = (await uploadRfqImage(imageUrl, buyer.id)).url;
     } catch (error) {
       console.error("RFQ image upload failed:", error);
       imageUrl = null;
-      imageWarning = "Supabase rejected the image upload.";
+      imageWarning =
+        error instanceof Error &&
+        error.message === "Supabase Storage is not configured."
+          ? "Image storage is not configured."
+          : "Supabase rejected the image upload.";
     }
   }
+
   const { deliveryLatitude, deliveryLongitude, ...rfqData } = input.data;
   try {
-    await db.transaction(async (tx) => {
-      await tx.execute(
-        sql`select id from users where id = ${buyer.id} for update`,
-      );
-      const [{ total }] = await tx
-        .select({ total: count() })
-        .from(rfqs)
-        .where(eq(rfqs.buyerId, buyer.id));
-      if (total >= MAX_RFQS_PER_BUYER) {
-        throw new RfqLimitError();
-      }
-      await tx.insert(rfqs).values({
-        ...rfqData,
-        deliveryLatitude:
-          deliveryLatitude === "" ? null : String(deliveryLatitude),
-        deliveryLongitude:
-          deliveryLongitude === "" ? null : String(deliveryLongitude),
-        imageUrl,
-        buyerId: buyer.id,
-      });
+    await insertRfqWithLimit(buyer.id, {
+      ...rfqData,
+      deliveryLatitude:
+        deliveryLatitude === "" ? null : String(deliveryLatitude),
+      deliveryLongitude:
+        deliveryLongitude === "" ? null : String(deliveryLongitude),
+      imageUrl,
     });
   } catch (error) {
     if (error instanceof RfqLimitError) {
-      return {
-        error: `You have reached the limit of ${MAX_RFQS_PER_BUYER} RFQs per account.`,
-      };
+      return { error: error.message };
     }
     throw error;
   }
@@ -145,17 +102,7 @@ export async function awardQuote(formData: FormData) {
     ),
   });
   if (!rfq) redirect("/buyer");
-  await db.transaction(async (tx) => {
-    await tx
-      .update(quotations)
-      .set({ status: "REJECTED" })
-      .where(eq(quotations.rfqId, rfqId));
-    await tx
-      .update(quotations)
-      .set({ status: "ACCEPTED" })
-      .where(and(eq(quotations.id, quoteId), eq(quotations.rfqId, rfqId)));
-    await tx.update(rfqs).set({ status: "AWARDED" }).where(eq(rfqs.id, rfqId));
-  });
+  await awardRfqQuote(rfqId, quoteId);
   revalidatePath("/buyer");
   revalidatePath(`/buyer/rfqs/${rfqId}`);
   redirect(`/buyer/rfqs/${rfqId}`);
