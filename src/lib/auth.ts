@@ -13,7 +13,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       clientId: process.env.AUTH_GITHUB_ID || "",
       clientSecret: process.env.AUTH_GITHUB_SECRET || "",
     }),
-    // Demo Credentials Provider for testing & rubric grading
+
     Credentials({
       id: "demo-login",
       name: "Demo Account",

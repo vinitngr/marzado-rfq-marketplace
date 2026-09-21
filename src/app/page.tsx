@@ -3,6 +3,7 @@ import {
   ArrowUpRight,
   BriefcaseBusiness,
   CircleHelp,
+  GitBranch,
   Package,
   Store,
 } from "lucide-react";
@@ -28,6 +29,18 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#f5f6f8] text-[#17202b]">
       <main className="mx-auto flex min-h-screen max-w-5xl flex-col items-center px-5 py-10 sm:px-8 sm:py-14">
+        <div className="flex w-full justify-end">
+          <a
+            aria-label="View Merzado on GitHub"
+            className="grid size-9 place-items-center border border-[#dfe3e8] bg-white text-[#6e7885] transition hover:border-[#17202b] hover:text-[#17202b]"
+            href="https://github.com/vinitngr/marzado-rfq-marketplace"
+            rel="noreferrer"
+            target="_blank"
+            title="View source on GitHub"
+          >
+            <GitBranch className="size-4" />
+          </a>
+        </div>
         <section className="flex w-full max-w-3xl flex-1 flex-col items-center justify-center text-center">
           <div className="mb-6 grid size-12 place-items-center border border-[#cdd9ef] bg-[#e9f0ff] text-[#315fae]">
             <BriefcaseBusiness className="size-5" strokeWidth={1.8} />
