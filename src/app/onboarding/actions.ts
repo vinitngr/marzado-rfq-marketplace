@@ -15,6 +15,9 @@ export async function chooseRole(formData: FormData) {
   const parsed = schema.safeParse({ role: formData.get("role") });
   if (!parsed.success) redirect("/onboarding?error=role");
 
-  await db.update(users).set({ role: parsed.data.role }).where(eq(users.id, session.user.id));
+  await db
+    .update(users)
+    .set({ role: parsed.data.role })
+    .where(eq(users.id, session.user.id));
   redirect(parsed.data.role === "BUYER" ? "/buyer" : "/supplier");
 }

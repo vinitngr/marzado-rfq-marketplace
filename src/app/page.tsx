@@ -1,9 +1,69 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { SiteHeader, SiteHeaderFallback } from "@/components/shared/site-header";
+import {
+  SiteHeader,
+  SiteHeaderFallback,
+} from "@/components/shared/site-header";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-slate-50"><Suspense fallback={<SiteHeaderFallback />}><SiteHeader /></Suspense><main className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28"><p className="font-semibold text-indigo-600">B2B sourcing, simplified</p><h1 className="mt-4 max-w-3xl text-4xl font-bold tracking-tight text-slate-950 sm:text-6xl">Turn business requirements into better supplier quotes.</h1><p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">Merzado gives buyers a clear place to post RFQs and suppliers a focused marketplace to discover and quote on opportunities.</p><div className="mt-9 flex flex-wrap gap-3"><Link className="rounded-md bg-slate-950 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800" href="/login">Get started</Link><a className="rounded-md border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700" href="#how-it-works">How it works</a></div><section className="mt-20 grid gap-5 sm:grid-cols-3" id="how-it-works"><article className="rounded-xl border border-slate-200 bg-white p-6"><p className="text-sm font-semibold text-indigo-600">01</p><h2 className="mt-3 font-semibold text-slate-950">Post an RFQ</h2><p className="mt-2 text-sm leading-6 text-slate-600">Describe what you need, where you need it, and your timeline.</p></article><article className="rounded-xl border border-slate-200 bg-white p-6"><p className="text-sm font-semibold text-indigo-600">02</p><h2 className="mt-3 font-semibold text-slate-950">Compare quotations</h2><p className="mt-2 text-sm leading-6 text-slate-600">Receive structured supplier responses in one place.</p></article><article className="rounded-xl border border-slate-200 bg-white p-6"><p className="text-sm font-semibold text-indigo-600">03</p><h2 className="mt-3 font-semibold text-slate-950">Choose confidently</h2><p className="mt-2 text-sm leading-6 text-slate-600">Find the right balance of price, delivery time, and fit.</p></article></section></main></div>
+    <div className="min-h-screen bg-slate-50">
+      <Suspense fallback={<SiteHeaderFallback />}>
+        <SiteHeader />
+      </Suspense>
+      <main className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
+        <p className="font-semibold text-indigo-600">
+          B2B sourcing, simplified
+        </p>
+        <h1 className="mt-4 max-w-3xl text-4xl font-bold tracking-tight text-slate-950 sm:text-6xl">
+          Turn business requirements into better supplier quotes.
+        </h1>
+        <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
+          Merzado gives buyers a clear place to post RFQs and suppliers a
+          focused marketplace to discover and quote on opportunities.
+        </p>
+        <div className="mt-9 flex flex-wrap gap-3">
+          <Link
+            className="rounded-md bg-slate-950 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800"
+            href="/login"
+          >
+            Get started
+          </Link>
+          <a
+            className="rounded-md border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700"
+            href="#how-it-works"
+          >
+            How it works
+          </a>
+        </div>
+        <section className="mt-20 grid gap-5 sm:grid-cols-3" id="how-it-works">
+          <article className="rounded-xl border border-slate-200 bg-white p-6">
+            <p className="text-sm font-semibold text-indigo-600">01</p>
+            <h2 className="mt-3 font-semibold text-slate-950">Post an RFQ</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Describe what you need, where you need it, and your timeline.
+            </p>
+          </article>
+          <article className="rounded-xl border border-slate-200 bg-white p-6">
+            <p className="text-sm font-semibold text-indigo-600">02</p>
+            <h2 className="mt-3 font-semibold text-slate-950">
+              Compare quotations
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Receive structured supplier responses in one place.
+            </p>
+          </article>
+          <article className="rounded-xl border border-slate-200 bg-white p-6">
+            <p className="text-sm font-semibold text-indigo-600">03</p>
+            <h2 className="mt-3 font-semibold text-slate-950">
+              Choose confidently
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Find the right balance of price, delivery time, and fit.
+            </p>
+          </article>
+        </section>
+      </main>
+    </div>
   );
 }

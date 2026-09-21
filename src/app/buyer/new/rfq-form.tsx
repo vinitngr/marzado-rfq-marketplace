@@ -1,12 +1,13 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 
 import Link from "next/link";
 
 import { ArrowLeft, FileText, Package, Send } from "lucide-react";
 
-import { createRfq } from "../actions";
+import { createRfq, type CreateRfqState } from "../actions";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,12 +21,25 @@ type NewRfqFormProps = {
 };
 
 export function NewRfqForm({ error }: NewRfqFormProps) {
+  const [state, formAction, pending] = React.useActionState<
+    CreateRfqState,
+    FormData
+  >(createRfq, {});
+  const router = useRouter();
   const errorMessage =
-    error === "image-config"
+    state.error ||
+    (error === "image-config"
       ? "Image storage is not configured yet. Remove the image or add the Cloudinary values to .env.local."
       : error === "image-upload"
         ? "We could not upload that image. Please try again or continue without it."
-        : "Please check the required fields and choose a future deadline.";
+        : "Please check the required fields and choose a future deadline.");
+
+  React.useEffect(() => {
+    if (state.success)
+      router.push(
+        `/buyer?created=1${state.imageWarning ? "&image=skipped" : ""}`,
+      );
+  }, [router, state.imageWarning, state.success]);
 
   return (
     <>
@@ -47,19 +61,19 @@ export function NewRfqForm({ error }: NewRfqFormProps) {
         </h1>
 
         <p className="mt-3 max-w-xl text-base leading-7 text-slate-600">
-          Add the essentials and a precise drop-off point so the right
-          suppliers can respond with confidence.
+          Add the essentials and a precise drop-off point so the right suppliers
+          can respond with confidence.
         </p>
       </div>
 
-      {error && (
+      {(error || state.error) && (
         <p className="mt-6 rounded-none border border-red-200 bg-red-50 p-4 text-sm text-red-700">
           {errorMessage}
         </p>
       )}
 
       <form
-        action={createRfq}
+        action={formAction}
         className="mt-8 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]"
       >
         <section className="rounded-none border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
@@ -88,7 +102,6 @@ export function NewRfqForm({ error }: NewRfqFormProps) {
 
             <label className="block text-sm font-medium text-slate-800">
               Requirement description
-
               <textarea
                 className="mt-2 min-h-32 w-full resize-y rounded-none border border-slate-300 bg-white p-3 text-sm shadow-sm outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-0"
                 name="description"
@@ -145,11 +158,11 @@ export function NewRfqForm({ error }: NewRfqFormProps) {
           <Button
             className="h-12 w-full rounded-none bg-slate-950 text-base text-white hover:bg-slate-800 hover:text-white focus-visible:border-slate-950 focus-visible:ring-0"
             type="submit"
+            disabled={pending}
           >
             <Send className="size-4" />
-            Publish RFQ
+            {pending ? "Publishing..." : "Publish RFQ"}
           </Button>
-
         </aside>
       </form>
     </>

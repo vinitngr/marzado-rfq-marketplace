@@ -90,6 +90,8 @@ export const rfqs = pgTable(
     quantity: integer("quantity").notNull(),
     unit: text("unit").default("units").notNull(),
     deliveryLocation: text("delivery_location").notNull(),
+    deliveryLatitude: numeric("delivery_latitude", { precision: 10, scale: 7 }),
+    deliveryLongitude: numeric("delivery_longitude", { precision: 10, scale: 7 }),
     imageUrl: text("image_url"),
     budgetMin: numeric("budget_min", { precision: 12, scale: 2 }),
     budgetMax: numeric("budget_max", { precision: 12, scale: 2 }),

@@ -30,16 +30,26 @@ export function LocationMap({ position, onPositionChange }: LocationMapProps) {
   React.useEffect(() => {
     if (!mapElement.current || mapInstance.current) return;
 
-    const map = L.map(mapElement.current, { scrollWheelZoom: true }).setView([initialPosition.current.lat, initialPosition.current.lng], 15);
-    const marker = L.marker([initialPosition.current.lat, initialPosition.current.lng], { icon: pinIcon, draggable: true }).addTo(map);
+    const map = L.map(mapElement.current, { scrollWheelZoom: true }).setView(
+      [initialPosition.current.lat, initialPosition.current.lng],
+      15,
+    );
+    const marker = L.marker(
+      [initialPosition.current.lat, initialPosition.current.lng],
+      { icon: pinIcon, draggable: true },
+    ).addTo(map);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
 
     map.on("click", (event) => {
       marker.setLatLng(event.latlng);
-      onPositionChangeRef.current({ lat: event.latlng.lat, lng: event.latlng.lng });
+      onPositionChangeRef.current({
+        lat: event.latlng.lat,
+        lng: event.latlng.lng,
+      });
     });
     marker.on("dragend", () => {
       const location = marker.getLatLng();
