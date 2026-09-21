@@ -86,13 +86,13 @@ async function RfqList({
             moving.
           </p>
         </div>
-        <Link
+        <a
           className="inline-flex h-10 items-center gap-2 rounded-none bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800"
           href="/buyer/new"
         >
           <FilePlus2 className="size-4" />
           Create RFQ
-        </Link>
+        </a>
       </header>
       {created === "1" && (
         <p className="mt-5 border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">

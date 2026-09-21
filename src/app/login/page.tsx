@@ -23,7 +23,7 @@ export default async function LoginPage({
           className="mb-7 text-center text-sm font-semibold tracking-[-0.02em] text-[#17202b]"
           href="/"
         >
-          merzado
+          merzado-rfq-marketplace
         </Link>
         <section className="mx-auto w-full max-w-2xl border-t border-[#dfe3e8] pt-7 sm:pt-8">
           <p className="text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-[#77818d]">

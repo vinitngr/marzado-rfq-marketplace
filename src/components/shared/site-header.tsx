@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { auth, signOut } from "@/lib/auth";
+import { db } from "@/db";
+import { users } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 export function SiteHeaderFallback() {
   return (
@@ -16,7 +19,13 @@ export function SiteHeaderFallback() {
 
 export async function SiteHeader() {
   const session = await auth();
-  const role = session?.user?.role;
+  const databaseUser = session?.user?.id
+    ? await db.query.users.findFirst({
+        where: eq(users.id, session.user.id),
+        columns: { role: true },
+      })
+    : null;
+  const role = databaseUser?.role ?? session?.user?.role;
   const home =
     role === "BUYER" ? "/buyer" : role === "SUPPLIER" ? "/supplier" : "/";
   return (

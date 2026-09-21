@@ -13,14 +13,6 @@ export default auth((request) => {
     return NextResponse.redirect(new URL("/onboarding", request.url));
   }
 
-  if (pathname.startsWith("/buyer") && user.role !== "BUYER") {
-    return NextResponse.redirect(new URL("/supplier", request.url));
-  }
-
-  if (pathname.startsWith("/supplier") && user.role !== "SUPPLIER") {
-    return NextResponse.redirect(new URL("/buyer", request.url));
-  }
-
   return NextResponse.next();
 });
 
